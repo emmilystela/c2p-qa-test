@@ -1,4 +1,4 @@
-# Projeto minas receitas
+# Projeto minhas receitas
 
 ## Como executar a aplicação
 
