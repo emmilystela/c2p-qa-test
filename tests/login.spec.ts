@@ -1,7 +1,5 @@
 import { test, expect } from "@playwright/test";
-
-const USERNAME_MOCK = 'emilys'
-const PASSWORD_MOCK = 'emilyspass'
+import { PASSWORD_MOCK, USERNAME_MOCK } from "./mocks";
 
 test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:3000/');
