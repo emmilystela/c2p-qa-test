@@ -15,15 +15,52 @@ async function goToRecipeDetails(page) {
 
 test.beforeEach(async ({ page }) => {
     await login(page)
-    await goToRecipeDetails(page)
-
 });
 
 test.describe('Recipes', () => {
+    test.describe('api', () => {
+        test('should GET /recipes/2 with success', async ({ request }) => {
+            const response = await request.get('https://dummyjson.com/recipes/2');
+
+            expect(response.status(), 'Status code should be 200').toBe(200);
+            expect(response.ok()).toBeTruthy();
+
+            const body = await response.json();
+            expect(body).toMatchObject({
+                id: 2,
+                name: expect.any(String),
+                ingredients: expect.any(Array),
+                instructions: expect.any(Array),
+                prepTimeMinutes: expect.any(Number),
+                cookTimeMinutes: expect.any(Number),
+                servings: expect.any(Number),
+                difficulty: expect.any(String),
+                cuisine: expect.any(String),
+                caloriesPerServing: expect.any(Number),
+                tags: expect.any(Array),
+                image: expect.any(String)
+            });
+            expect(body.ingredients.length).toBeGreaterThan(0);
+            expect(body.instructions.length).toBeGreaterThan(0);
+        })
+
+        test('should request recipe details correctly', async ({ page }) => {
+            const responsePromise = page.waitForResponse(response =>
+                response.url().includes('/recipes/2') && response.status() === 200
+            );
+            await goToRecipeDetails(page)
+
+            const response = await responsePromise;
+            expect(response.ok()).toBeTruthy();
+        });
+    })
+
     test('should access recipe detail page', async ({ page }) => {
+        await goToRecipeDetails(page)
         await expect(page).toHaveURL(/receitas\/2/);
     })
     test('should render the recipe details correctly', async ({ page }) => {
+        await goToRecipeDetails(page)
         await expect(page).toHaveURL(/receitas\/2/);
 
         await expect(page.locator('img')).toBeVisible();

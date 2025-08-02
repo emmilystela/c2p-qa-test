@@ -14,6 +14,32 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe('Recipes', () => {
+    test.describe('api', () => {
+        test('should GET /recipes with success', async ({ request }) => {
+            const response = await request.get('https://dummyjson.com/recipes');
+
+            expect(response.status(), 'Status code should be 200').toBe(200);
+            expect(response.ok()).toBeTruthy();
+
+            const body = await response.json();
+
+            expect(body).toHaveProperty('recipes')
+            expect(body).toMatchObject({
+                recipes: expect.any(Array),
+            });
+        })
+        test('should request recipes correctly', async ({ page }) => {
+            await login(page)
+            const responsePromise = page.waitForResponse(response =>
+                response.url().includes('/recipes') && response.status() === 200
+            );
+            await expect(page).toHaveURL(/receitas/)
+
+            const response = await responsePromise;
+            expect(response.ok()).toBeTruthy();
+        });
+    })
+
     test('should access recipe route', async ({ page }) => {
         await expect(page).toHaveURL(/receitas/)
     })
