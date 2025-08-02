@@ -13,10 +13,6 @@ async function goToProfile(page) {
 
 }
 
-test.beforeEach(async ({ page }) => {
-    await login(page)
-});
-
 test.describe('Login', () => {
 
     test.describe('api', () => {
@@ -44,11 +40,34 @@ test.describe('Login', () => {
     })
 
     test('should access profile page', async ({ page }) => {
+        await login(page)
         await goToProfile(page)
         await expect(page).toHaveURL(/perfil/);
     })
 
+    test('should redirect to login page if user is not autenticated', async ({ page }) => {
+        await goToProfile(page)
+        await test.step('check if user is not authenticated', async () => {
+            const token = await page.evaluate(() => {
+                return localStorage.getItem('token');
+            });
+            const user = await page.evaluate(() => {
+                return localStorage.getItem('user');
+            });
+            expect(token).toBeNull();
+            expect(user).toBeNull();
+        })
+
+        await test.step('check if user is redirected', async () => {
+
+            await expect(page).toHaveURL('http://localhost:3000/');
+            await expect(page.getByPlaceholder('E-mail')).toBeVisible();
+            await expect(page.getByPlaceholder('Senha')).toBeVisible();
+        });
+    })
+
     test('should render profile information correctly', async ({ page }) => {
+        await login(page)
         await goToProfile(page)
         await expect(page.getByText('Perfil do Usuário')).toBeVisible()
         await expect(page.getByText('Emily Johnson')).toBeVisible()
@@ -59,6 +78,7 @@ test.describe('Login', () => {
     })
 
     test('should logout and clear localStorage', async ({ page }) => {
+        await login(page)
         await goToProfile(page)
         await page.getByRole('button', { name: 'Sair' }).click()
         const token = await page.evaluate(() => {

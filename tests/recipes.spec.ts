@@ -8,11 +8,6 @@ async function login(page) {
     await page.getByRole('button', { name: 'Entrar' }).click();
 }
 
-test.beforeEach(async ({ page }) => {
-    await login(page)
-
-});
-
 test.describe('Recipes', () => {
     test.describe('api', () => {
         test('should GET /recipes with success', async ({ request }) => {
@@ -41,9 +36,32 @@ test.describe('Recipes', () => {
     })
 
     test('should access recipe route', async ({ page }) => {
+        await login(page)
         await expect(page).toHaveURL(/receitas/)
     })
+
+    test('should redirect to login page if user is not autenticated', async ({ page }) => {
+        await page.goto('http://localhost:3000/receitas/');
+        await test.step('check if user is not authenticated', async () => {
+            const token = await page.evaluate(() => {
+                return localStorage.getItem('token');
+            });
+            const user = await page.evaluate(() => {
+                return localStorage.getItem('user');
+            });
+            expect(token).toBeNull();
+            expect(user).toBeNull();
+        })
+
+        await test.step('check if user is redirected', async () => {
+            await expect(page).toHaveURL('http://localhost:3000/');
+            await expect(page.getByPlaceholder('E-mail')).toBeVisible();
+            await expect(page.getByPlaceholder('Senha')).toBeVisible();
+        });
+    })
+
     test('should render a list of recipes', async ({ page }) => {
+        await login(page)
         await expect(page).toHaveURL(/receitas/)
 
         // using css to identify card elements, but it is bad practice, the code needs set testId or other reliable way to identify elements
@@ -55,6 +73,7 @@ test.describe('Recipes', () => {
     })
 
     test('should render the list item correctly', async ({ page }) => {
+        await login(page)
         await expect(page).toHaveURL(/receitas/)
 
         // using css to identify card elements, but it is bad practice, the code needs set testId or other reliable way to identify elements
@@ -75,6 +94,7 @@ test.describe('Recipes', () => {
     })
 
     test('should redirect to item page when click in name', async ({ page }) => {
+        await login(page)
         await expect(page).toHaveURL(/receitas/)
 
         // using css to identify card elements, but it is bad practice, the code needs set testId or other reliable way to identify elements

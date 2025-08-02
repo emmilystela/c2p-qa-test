@@ -13,10 +13,6 @@ async function goToRecipeDetails(page) {
 
 }
 
-test.beforeEach(async ({ page }) => {
-    await login(page)
-});
-
 test.describe('Recipes', () => {
     test.describe('api', () => {
         test('should GET /recipes/2 with success', async ({ request }) => {
@@ -56,10 +52,34 @@ test.describe('Recipes', () => {
     })
 
     test('should access recipe detail page', async ({ page }) => {
+        await login(page)
         await goToRecipeDetails(page)
         await expect(page).toHaveURL(/receitas\/2/);
     })
+
+    test('should redirect to login page if user is not autenticated', async ({ page }) => {
+        await goToRecipeDetails(page)
+        await test.step('check if user is not authenticated', async () => {
+            const token = await page.evaluate(() => {
+                return localStorage.getItem('token');
+            });
+            const user = await page.evaluate(() => {
+                return localStorage.getItem('user');
+            });
+            expect(token).toBeNull();
+            expect(user).toBeNull();
+        })
+
+
+        await test.step('check if user is redirected', async () => {
+            await expect(page).toHaveURL('http://localhost:3000/');
+            await expect(page.getByPlaceholder('E-mail')).toBeVisible();
+            await expect(page.getByPlaceholder('Senha')).toBeVisible();
+        });
+    })
+
     test('should render the recipe details correctly', async ({ page }) => {
+        await login(page)
         await goToRecipeDetails(page)
         await expect(page).toHaveURL(/receitas\/2/);
 
