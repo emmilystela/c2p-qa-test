@@ -81,3 +81,32 @@ Não há um script fixo — o foco é observar o raciocínio, a cobertura e a cl
 - Este `TESTE.md` com instruções de execução
 
 ---
+
+### Justificativa da seleção de casos de testes 
+
+## Fluxos críticos de autenticação: 
+
+- O login e o logout são funcionalidades essenciais para o controle de acesso ao sistema. Os testes foram elaborados para validar o fluxo esperado (credenciais válidas) e situaçoes de erros (credenciais inválidas). 
+
+## Segurança e controle de sessão: 
+
+- Foi verificado se a aplicação restringe corretamente o acesso as telas protegidas ao acessar com o usuário autenticado e com o usuário não autenticado (exceto a tela de login).
+
+## Experiência do usuário
+
+- Foi validado se o conteúdo está sendo exibido em tela para o usuário corretamente, garantindo que os elementos estejam visíveis e acessíveis ao usuário; 
+
+## Bugs encontrados
+
+* Ao salvar o token do usuário no localStorage está sempre salvo a string "undefined";
+* O código da tela "Receitas" não foi escrito orientado para testes, sendo assim foi utilizado o CSS para identificação do elemento dentro do HTML;
+* É possivel acessar qualquer tela sem usuário autenticado; 
+
+
+### Como executar os testes
+
+1. Necessário realizar o download do [NodeJs](https://nodejs.org/pt)
+2. Realizar o comando ```npm install``` para instalar as dependências do projeto
+3. Executar o comando ```npm run start``` para executar o projeto
+4. O projeto irá abrir no navegador na porta 3000.
+5. Com o projeto em execução. Executar o comando ```npx playwright test``` para executar os testes
